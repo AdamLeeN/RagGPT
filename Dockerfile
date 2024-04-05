@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-
+FROM alpine as builder
 
 WORKDIR /app
 
@@ -18,6 +18,9 @@ FROM python:3.11-slim-bookworm as base
 ENV OPENAI_API_BASE_URL "https://api.adamchatbot.chat/v1"
 ENV OPENAI_API_KEY "sk-OQyJrrKA7y7g4vdUCbDcAf768bB7468d8153BfD93b37Cf42"
 
+
+ENV SCARF_NO_ANALYTICS true
+ENV DO_NOT_TRACK true
 
 ######## Preloaded models ########
 
