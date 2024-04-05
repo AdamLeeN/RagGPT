@@ -19,9 +19,6 @@ ENV OPENAI_API_BASE_URL "https://api.adamchatbot.chat/v1"
 ENV OPENAI_API_KEY "sk-OQyJrrKA7y7g4vdUCbDcAf768bB7468d8153BfD93b37Cf42"
 
 
-ENV SCARF_NO_ANALYTICS true
-ENV DO_NOT_TRACK true
-
 ######## Preloaded models ########
 
 
@@ -49,4 +46,4 @@ RUN python -c "import os; from faster_whisper import WhisperModel; WhisperModel(
 # copy backend files
 COPY . .
 
-CMD [ "uvicorn", "main:app", "--host", "127.0.0.1", "--port", "8008" ]
+CMD [ "uvicorn", "main:app", "--host", "127.0.0.1", "--port", "8080" ]
