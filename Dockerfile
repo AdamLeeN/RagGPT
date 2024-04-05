@@ -23,20 +23,8 @@ ENV SCARF_NO_ANALYTICS true
 ENV DO_NOT_TRACK true
 
 ######## Preloaded models ########
-# whisper TTS Settings
-ENV WHISPER_MODEL="base"
-ENV WHISPER_MODEL_DIR="/app/backend/data/cache/whisper/models"
 
-# RAG Embedding Model Settings
-# any sentence transformer model; models to use can be found at https://huggingface.co/models?library=sentence-transformers
-# Leaderboard: https://huggingface.co/spaces/mteb/leaderboard 
-# for better persormance and multilangauge support use "intfloat/multilingual-e5-large" (~2.5GB) or "intfloat/multilingual-e5-base" (~1.5GB)
-# IMPORTANT: If you change the default model (all-MiniLM-L6-v2) and vice versa, you aren't able to use RAG Chat with your previous documents loaded in the WebUI! You need to re-embed them.
-ENV RAG_EMBEDDING_MODEL="all-MiniLM-L6-v2"
-# device type for whisper tts and embbeding models - "cpu" (default), "cuda" (nvidia gpu and CUDA required) or "mps" (apple silicon) - choosing this right can lead to better performance
-ENV RAG_EMBEDDING_MODEL_DEVICE_TYPE="cpu"
-ENV RAG_EMBEDDING_MODEL_DIR="/app/backend/data/cache/embedding/models"
-ENV SENTENCE_TRANSFORMERS_HOME $RAG_EMBEDDING_MODEL_DIR
+
 
 
 COPY ./requirements.txt ./requirements.txt
@@ -61,4 +49,4 @@ RUN python -c "import os; from faster_whisper import WhisperModel; WhisperModel(
 # copy backend files
 COPY . .
 
-CMD [ "uvicorn", "main:app", "--host", "localhost", "--port", "8008" ]
+CMD [ "uvicorn", "main:app", "--host", "127.0.0.1", "--port", "8008" ]
