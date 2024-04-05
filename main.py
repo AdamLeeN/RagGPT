@@ -260,8 +260,8 @@ class GenerateChatCompletionForm(BaseModel):
     keep_alive: Optional[Union[int, str]] = None
 
 app.state.MODELS = {}
-app.state.OPENAI_API_KEYS=["sk-OQyJrrKA7y7g4vdUCbDcAf768bB7468d8153BfD93b37Cf42"]
-app.state.OPENAI_API_BASE_URLS = ["https://api.adamchatbot.chat/v1"]
+app.state.OPENAI_API_KEYS= os.environ.get("OPENAI_API_KEYS", "").split(",")
+app.state.OPENAI_API_BASE_URLS = os.environ.get("OPENAI_API_BASE_URLS", "").split(",")
 
 
 class RAGMiddleware(BaseHTTPMiddleware):
