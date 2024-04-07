@@ -53,4 +53,4 @@ COPY --from=build /app/onnx /root/.cache/chroma/onnx_models/all-MiniLM-L6-v2/onn
 # copy backend files
 COPY . .
 
-CMD [ "bash", "start.sh"]
+CMD [ "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8008" ]
