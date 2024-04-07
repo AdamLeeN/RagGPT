@@ -28,15 +28,12 @@ ENV OPENAI_API_KEY "sk-OQyJrrKA7y7g4vdUCbDcAf768bB7468d8153BfD93b37Cf42"
 
 ######## Preloaded models ########
 
-WORKDIR /app/backend
 
 # install python dependencies
-COPY ./backend/requirements.txt ./requirements.txt
+COPY ./requirements.txt ./requirements.txt
 
-RUN apt-get update && apt-get install ffmpeg libsm6 libxext6  -y
-
-RUN pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu --no-cache-dir
-RUN pip3 install -r requirements.txt --no-cache-dir
+RUN pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu 
+RUN pip3 install -r requirements.txt 
 
 # Install pandoc and netcat
 # RUN python -c "import pypandoc; pypandoc.download_pandoc()"
@@ -46,19 +43,14 @@ RUN apt-get update \
 
 # preload embedding model
 RUN python -c "import os; from chromadb.utils import embedding_functions; sentence_transformer_ef = embedding_functions.SentenceTransformerEmbeddingFunction(model_name=os.environ['RAG_EMBEDDING_MODEL'], device=os.environ['RAG_EMBEDDING_MODEL_DEVICE_TYPE'])"
-# preload tts model
-RUN python -c "import os; from faster_whisper import WhisperModel; WhisperModel(os.environ['WHISPER_MODEL'], device='auto', compute_type='int8', download_root=os.environ['WHISPER_MODEL_DIR'])"
 
 # copy embedding weight from build
 RUN mkdir -p /root/.cache/chroma/onnx_models/all-MiniLM-L6-v2
 COPY --from=build /app/onnx /root/.cache/chroma/onnx_models/all-MiniLM-L6-v2/onnx
 
-# copy built frontend files
-COPY --from=build /app/build /app/build
-COPY --from=build /app/CHANGELOG.md /app/CHANGELOG.md
-COPY --from=build /app/package.json /app/package.json
+
 
 # copy backend files
-COPY ./backend .
+COPY . .
 
 CMD [ "bash", "start.sh"]
