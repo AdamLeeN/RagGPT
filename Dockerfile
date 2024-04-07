@@ -6,7 +6,9 @@ WORKDIR /app
 # wget embedding model weight from alpine (does not exist from slim-buster)
 RUN wget "https://chroma-onnx-models.s3.amazonaws.com/all-MiniLM-L6-v2/onnx.tar.gz" -O - | \
     tar -xzf - -C /app
-    
+
+COPY . .
+
 RUN mkdir -p /root/.cache/chroma/onnx_models/all-MiniLM-L6-v2
 COPY /app/onnx /root/.cache/chroma/onnx_models/all-MiniLM-L6-v2/onnx
 
@@ -47,6 +49,6 @@ RUN python -c "import os; from chromadb.utils import embedding_functions; senten
 
 
 # copy backend files
-COPY . .
+
 
 CMD [ "uvicorn", "main:app", "--host", "127.0.0.1", "--port", "8080" ]
