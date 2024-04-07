@@ -44,7 +44,7 @@ RUN apt-get update \
 RUN python -c "import os; from chromadb.utils import embedding_functions; sentence_transformer_ef = embedding_functions.SentenceTransformerEmbeddingFunction(model_name=os.environ['RAG_EMBEDDING_MODEL'], device=os.environ['RAG_EMBEDDING_MODEL_DEVICE_TYPE'])"
 
 RUN mkdir -p /root/.cache/chroma/onnx_models/all-MiniLM-L6-v2
-COPY --from=build /app/onnx /root/.cache/chroma/onnx_models/all-MiniLM-L6-v2/onnx
+COPY /app/onnx /root/.cache/chroma/onnx_models/all-MiniLM-L6-v2/onnx
 # copy backend files
 COPY . .
 
