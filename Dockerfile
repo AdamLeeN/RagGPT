@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-FROM alpine as build
+FROM python:3.11-slim-bookworm as build
 
 WORKDIR /app
 
@@ -7,12 +7,12 @@ WORKDIR /app
 RUN wget "https://chroma-onnx-models.s3.amazonaws.com/all-MiniLM-L6-v2/onnx.tar.gz" -O - | \
     tar -xzf - -C /app
 
-COPY . .
+
 
 RUN mkdir -p /root/.cache/chroma/onnx_models/all-MiniLM-L6-v2
 COPY --from=build /app/onnx /root/.cache/chroma/onnx_models/all-MiniLM-L6-v2/onnx
 
-FROM python:3.11-slim-bookworm as base
+
 
 ENV RAG_EMBEDDING_MODEL="all-MiniLM-L6-v2"
 # device type for whisper tts and embbeding models - "cpu" (default), "cuda" (nvidia gpu and CUDA required) or "mps" (apple silicon) - choosing this right can lead to better performance
@@ -49,6 +49,6 @@ RUN python -c "import os; from chromadb.utils import embedding_functions; senten
 
 
 # copy backend files
-
+COPY . .
 
 CMD [ "uvicorn", "main:app", "--host", "127.0.0.1", "--port", "8080" ]
