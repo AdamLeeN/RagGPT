@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-FROM alpine as builder
+FROM alpine as build
 
 WORKDIR /app
 
