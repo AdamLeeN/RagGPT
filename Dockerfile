@@ -6,7 +6,9 @@ WORKDIR /app
 # wget embedding model weight from alpine (does not exist from slim-buster)
 RUN wget "https://chroma-onnx-models.s3.amazonaws.com/all-MiniLM-L6-v2/onnx.tar.gz" -O - | \
     tar -xzf - -C /app
-
+    
+RUN mkdir -p /root/.cache/chroma/onnx_models/all-MiniLM-L6-v2
+COPY /app/onnx /root/.cache/chroma/onnx_models/all-MiniLM-L6-v2/onnx
 
 FROM python:3.11-slim-bookworm as base
 
@@ -43,8 +45,7 @@ RUN apt-get update \
 # preload embedding model
 RUN python -c "import os; from chromadb.utils import embedding_functions; sentence_transformer_ef = embedding_functions.SentenceTransformerEmbeddingFunction(model_name=os.environ['RAG_EMBEDDING_MODEL'], device=os.environ['RAG_EMBEDDING_MODEL_DEVICE_TYPE'])"
 
-RUN mkdir -p /root/.cache/chroma/onnx_models/all-MiniLM-L6-v2
-COPY /app/onnx /root/.cache/chroma/onnx_models/all-MiniLM-L6-v2/onnx
+
 # copy backend files
 COPY . .
 
