@@ -11,6 +11,7 @@ from fastapi import (
     File,
     Form,
 )
+from dotenv import load_dotenv
 
 
 from fastapi.concurrency import run_in_threadpool
@@ -259,9 +260,11 @@ class GenerateChatCompletionForm(BaseModel):
     stream: Optional[bool] = None
     keep_alive: Optional[Union[int, str]] = None
 
+# Load environment variables
+load_dotenv()
 app.state.MODELS = {}
-app.state.OPENAI_API_KEYS= os.environ.get("OPENAI_API_KEYS", "").split(",")
-app.state.OPENAI_API_BASE_URLS = os.environ.get("OPENAI_API_BASE_URLS", "").split(",")
+app.state.OPENAI_API_KEY= os.getenv('OPENAI_API_KEY')
+app.state.OPENAI_API_BASE_URL = os.getenv('OPENAI_API_BASE_URL')
 
 
 class RAGMiddleware(BaseHTTPMiddleware):
@@ -275,9 +278,10 @@ class RAGMiddleware(BaseHTTPMiddleware):
             body = await request.body()
             # Decode body to string
             body_str = body.decode("utf-8")
+            print(f"body_str: {body_str}")
             # Parse string to JSON
             data = json.loads(body_str) if body_str else {}
-
+            print(f"data: {data}")
             # Example: Add a new key-value pair or modify existing ones
             # data["modified"] = True  # Example modification
             if "docs" in data:
@@ -339,7 +343,7 @@ def merge_models_lists(model_lists):
                 [
                     {**model, "urlIdx": idx}
                     for model in models
-                    if "api.openai.com" not in app.state.OPENAI_API_BASE_URLS[idx]
+                    if "api.openai.com" not in app.state.OPENAI_API_BASE_URL[idx]
                     or "gpt" in model["id"]
                 ]
             )
@@ -348,12 +352,12 @@ def merge_models_lists(model_lists):
 async def get_all_models():
     log.info("get_all_models()")
 
-    if len(app.state.OPENAI_API_KEYS) == 1 and app.state.OPENAI_API_KEYS[0] == "":
+    if len(app.state.OPENAI_API_KEY) == 1 and app.state.OPENAI_API_KEYS[0] == "":
         models = {"data": []}
     else:
         tasks = [
-            fetch_url(f"{url}/models", app.state.OPENAI_API_KEYS[idx])
-            for idx, url in enumerate(app.state.OPENAI_API_BASE_URLS)
+            fetch_url(f"{url}/models", app.state.OPENAI_API_KEY)
+            for idx, url in enumerate(app.state.OPENAI_API_BASE_URL)
         ]
 
         responses = await asyncio.gather(*tasks)
@@ -376,8 +380,7 @@ async def get_all_models():
         app.state.MODELS = {model["id"]: model for model in models["data"]}
 
         return models
-@app.post("/api/chat")
-@app.post("/api/chat/{url_idx}")
+@app.post("/v1/chat/completions")
 async def generate_chat_completion(
     form_data: GenerateChatCompletionForm,
     url_idx: Optional[int] = None,
@@ -393,7 +396,7 @@ async def generate_chat_completion(
     #         )
 
     # url = app.state.OLLAMA_BASE_URLS[url_idx]
-    url = "https://api.adamchatbot.chat/"
+    url = app.state.OPENAI_API_BASE_URL
     log.info(f"url: {url}")
 
     r = None
@@ -431,7 +434,7 @@ async def generate_chat_completion(
 
             r = requests.request(
                 method="POST",
-                headers={"Content-Type": "application/json","Authorization":"sk-OQyJrrKA7y7g4vdUCbDcAf768bB7468d8153BfD93b37Cf42"},
+                headers={"Content-Type": "application/json","Authorization":app.state.OPENAI_API_KEY},
                 url=f"{url}/v1/chat/completions",
                 data=form_data.model_dump_json(exclude_none=True).encode(),
                 stream=True,
