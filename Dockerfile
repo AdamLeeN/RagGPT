@@ -42,15 +42,12 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 # preload embedding model
-# RUN python -c "import os; from chromadb.utils import embedding_functions; sentence_transformer_ef = embedding_functions.SentenceTransformerEmbeddingFunction(model_name=os.environ['RAG_EMBEDDING_MODEL'], device=os.environ['RAG_EMBEDDING_MODEL_DEVICE_TYPE'])"
+RUN python -c "import os; from chromadb.utils import embedding_functions; sentence_transformer_ef = embedding_functions.SentenceTransformerEmbeddingFunction(model_name=os.environ['RAG_EMBEDDING_MODEL'], device=os.environ['RAG_EMBEDDING_MODEL_DEVICE_TYPE'])"
 
 # copy embedding weight from build
 RUN mkdir -p /root/.cache/chroma/onnx_models/all-MiniLM-L6-v2
 COPY --from=build /app/onnx /root/.cache/chroma/onnx_models/all-MiniLM-L6-v2/onnx
 
 
-
-# copy backend files
-COPY . .
 
 CMD [ "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8008" ]
