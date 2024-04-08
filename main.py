@@ -467,6 +467,9 @@ async def generate_chat_completion(
             status_code=r.status_code if r else 500,
             detail=error_detail,
         )
+@app.get("/")
+def read_root():
+    return {"Hello": "World"}
 
 @app.post("/doc")
 def store_doc(
